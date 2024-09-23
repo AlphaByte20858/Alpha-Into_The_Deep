@@ -2,13 +2,18 @@ package org.firstinspires.ftc.teamcode.Testes;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
+import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
+import com.acmerobotics.roadrunner.SequentialAction;
+import com.acmerobotics.roadrunner.ftc.Actions;
+
+import org.firstinspires.ftc.teamcode.MecanumDrive;
 
 @Autonomous (name = "Sla mn", group = "LinearOpMode")
 public class TesteClass extends LinearOpMode {
@@ -41,8 +46,18 @@ public class TesteClass extends LinearOpMode {
 
         FtcDashboard dashboard = FtcDashboard.getInstance();
         telemetry = new MultipleTelemetry(telemetry, dashboard.getTelemetry());
+        MecanumDrive sla = new MecanumDrive(hardwareMap, new Pose2d(0,0, Math.toRadians(0)));
+
+        Action trajetoryTest;
+
+        trajetoryTest = sla.actionBuilder(sla.pose)
+                .lineToX(21)
+                        .build();
 
         waitForStart();
+        Actions.runBlocking(new SequentialAction(
+                trajetoryTest
+        ));
 
     }
 }
