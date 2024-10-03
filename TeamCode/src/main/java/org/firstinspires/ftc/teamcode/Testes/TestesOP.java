@@ -1,23 +1,17 @@
-package org.firstinspires.ftc.teamcode.TeleOps;
+package org.firstinspires.ftc.teamcode.Testes;
 
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.AngularVelocity;
-import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
-
-@Autonomous (name = "TeleOperado Dox Cria", group = "OpMode")
-public class TeleOp extends OpMode {
-    DcMotorEx MET, MEF, MDT, MDF, LS;
+@TeleOp
+public class TestesOP extends OpMode {
+    DcMotorEx MET, MEF, MDT, MDF;// LS
     Servo sexta;
     CRServo intk, L, R;
     boolean Cxta;
@@ -27,14 +21,14 @@ public class TeleOp extends OpMode {
         MDT = hardwareMap.get(DcMotorEx.class, "MDT");
         MEF = hardwareMap.get(DcMotorEx.class, "MEF");
         MDF = hardwareMap.get(DcMotorEx.class, "MDF");
-        LS = hardwareMap.get(DcMotorEx.class, "LS");
+        //LS = hardwareMap.get(DcMotorEx.class, "LS");
         L = hardwareMap.get(CRServo.class, "L");
         R = hardwareMap.get(CRServo.class, "R");
         sexta = hardwareMap.get(Servo.class, "sexta");
         intk = hardwareMap.get(CRServo.class, "intk");
 
         MET.setDirection(DcMotorSimple.Direction.REVERSE);
-        MEF.setDirection(DcMotorSimple.Direction.REVERSE);
+        MDT.setDirection(DcMotorSimple.Direction.REVERSE);
         R.setDirection(DcMotorSimple.Direction.REVERSE);
 
         MDF.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -104,7 +98,7 @@ public class TeleOp extends OpMode {
 
     }
 
-    public void linear(){
+    /*public void linear(){
         LS.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
-    }
+    }*/
 }

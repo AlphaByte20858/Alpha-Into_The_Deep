@@ -50,7 +50,7 @@ public class TesteClass extends LinearOpMode {
 
         Action trajetoryTest;
 
-        trajetoryTest = sla.actionBuilder(sla.pose)
+            trajetoryTest = sla.actionBuilder(sla.pose)
                 .lineToX(21)
                         .build();
 
