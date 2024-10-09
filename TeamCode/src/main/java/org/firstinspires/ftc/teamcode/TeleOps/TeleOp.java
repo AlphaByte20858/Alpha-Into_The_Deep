@@ -58,8 +58,8 @@ public class TeleOp extends OpMode {
 
     public void movi(){
         double axial   = gamepad1.right_trigger - gamepad1.left_trigger;
-        double lateral = gamepad1.left_stick_x * 0.9;
-        double yaw     =  gamepad1.right_stick_x * 0.6;
+        double lateral = gamepad1.left_stick_x;
+        double yaw     =  gamepad1.right_stick_x;
 
         double absaxial = Math.abs(axial);
         double abslateral = Math.abs(lateral);
@@ -74,7 +74,7 @@ public class TeleOp extends OpMode {
             MotorsPower(motorEsquerdoFf, motorDireitoFf , motorEsquerdoTf, motorDireitoTf);
         }
         else {
-            MotorsPower(motorEsquerdoFf * 0.85, motorDireitoFf * 0.85, motorEsquerdoTf * 0.85, motorDireitoTf * 0.85);
+            MotorsPower(motorEsquerdoFf, motorDireitoFf, motorEsquerdoTf, motorDireitoTf);
         }
         telemetry.addData("MDF", MDF.getCurrentPosition());
         telemetry.addData("MEF", MEF.getCurrentPosition());
