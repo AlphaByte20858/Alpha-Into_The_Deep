@@ -40,17 +40,26 @@ public class AutoTestes extends LinearOpMode {
         FtcDashboard dashboard = FtcDashboard.getInstance();
         telemetry = new MultipleTelemetry(telemetry, dashboard.getTelemetry());
 
-        MecanumDrive movi = new MecanumDrive(hardwareMap, new Pose2d(0,0, Math.toRadians(0)));
+        MecanumDrive movi = new MecanumDrive(hardwareMap, new Pose2d(12,-63, Math.toRadians(0)));
 
-        Action açao;
+        Action direita1, direita2, direita3;
 
-        açao = movi.actionBuilder(movi.pose)
-                .splineToConstantHeading(new Vector2d(10, 5), Math.toRadians(180))
+        direita1 = movi.actionBuilder(movi.pose)
+                .lineToXConstantHeading(4)
+                .lineToYSplineHeading(-34, Math.toRadians(-90))
+                .build();
+
+        direita2 = movi.actionBuilder(direita1)
+                .build();
+
+        direita3 = movi.actionBuilder()
                 .build();
 
         waitForStart();
         Actions.runBlocking(new SequentialAction(
-                açao
+                direita1,
+                direita2,
+                direita3
         ));
     }
 }
