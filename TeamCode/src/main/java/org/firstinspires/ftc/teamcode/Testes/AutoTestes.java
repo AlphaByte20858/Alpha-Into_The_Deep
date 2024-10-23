@@ -5,6 +5,9 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
+import com.acmerobotics.roadrunner.Trajectory;
+import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
+import com.acmerobotics.roadrunner.TrajectoryBuilder;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -49,10 +52,15 @@ public class AutoTestes extends LinearOpMode {
                 .lineToYSplineHeading(-34, Math.toRadians(-90))
                 .build();
 
-        direita2 = movi.actionBuilder(direita1)
+        direita2 = movi.actionBuilder(new Pose2d(4, 34, Math.toRadians(-90)))
+                .lineToXConstantHeading(26)
+                .splineToConstantHeading(new Vector2d(63, -15), Math.toRadians(270))
+                .waitSeconds(1)
+                .splineToConstantHeading(new Vector2d(62, -62), Math.toRadians(-90))
                 .build();
 
-        direita3 = movi.actionBuilder()
+        direita3 = movi.actionBuilder(new Pose2d(62, -62, Math.toRadians(-90)))
+                .splineToConstantHeading(new Vector2d())
                 .build();
 
         waitForStart();
@@ -62,4 +70,3 @@ public class AutoTestes extends LinearOpMode {
                 direita3
         ));
     }
-}

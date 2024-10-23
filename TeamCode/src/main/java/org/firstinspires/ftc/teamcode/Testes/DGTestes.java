@@ -16,7 +16,7 @@ public class DGTestes extends OpMode {
         Motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
     }
-
+    ()
     public void loop() {
         if (gamepad1.a){
             Motor.setPower(0.7);
