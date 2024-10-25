@@ -7,24 +7,26 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 @TeleOp
 public class SpearedVoidSample extends OpMode {
-    DcMotorEx LS, InTK;
+    DcMotorEx LSi, LSii;
     public void init() {
-        LS = hardwareMap.get(DcMotorEx.class, "LS");
-        InTK = hardwareMap.get(DcMotorEx.class, "InTK");
+        LSi = hardwareMap.get(DcMotorEx.class, "LSi");
+        LSii = hardwareMap.get(DcMotorEx.class, "LSii");
 
-        LS.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        InTK.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        LSi.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        LSii.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        LS.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        InTK.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        LSi.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        LSii.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
+        LSi.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        LSii.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
     }
 
     public void loop() {
-        LS.setPower((gamepad1.right_trigger - gamepad1.left_trigger) * 0.8);
-        InTK.setPower((gamepad2.right_trigger - gamepad2.left_trigger));
+        LSi.setPower((gamepad1.right_trigger - gamepad1.left_trigger) * 0.7);
+        LSii.setPower((gamepad2.right_trigger - gamepad2.left_trigger) * 0.7);
 
-        telemetry.addData("Sistema Linear:", LS.getPower());
-        telemetry.addData("In Take:", InTK.getPower());
+        telemetry.addData("Sistema Linear:", LSi.getPower());
+        telemetry.addData("In Take:", LSii.getPower());
     }
 }

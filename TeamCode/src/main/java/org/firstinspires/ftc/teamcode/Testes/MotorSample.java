@@ -23,6 +23,7 @@ public class MotorSample extends OpMode {
 
     }
     public void loop(){
+        telemetry.getCaptionValueSeparator();
         if (gamepad1.a){
             MDF.setPower(1);
             telemetry.addLine("Direita Frente ligado!");

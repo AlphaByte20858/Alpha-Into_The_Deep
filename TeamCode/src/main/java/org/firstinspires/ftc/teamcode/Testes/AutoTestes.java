@@ -5,9 +5,6 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
-import com.acmerobotics.roadrunner.Trajectory;
-import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
-import com.acmerobotics.roadrunner.TrajectoryBuilder;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -15,12 +12,17 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 
 @Autonomous (name = "AutoSample", group = "LinearOpMode")
 public class AutoTestes extends LinearOpMode {
     DcMotorEx MET, MEF, MDF, MDT;
+    Servo servinho;
+    ElapsedTime autonomus;
+
     public void runOpMode() {
         MET = hardwareMap.get(DcMotorEx.class, "MET");
         MDT = hardwareMap.get(DcMotorEx.class, "MDT");
@@ -40,10 +42,11 @@ public class AutoTestes extends LinearOpMode {
         MDT.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         MEF.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
+        autonomus.reset();
         FtcDashboard dashboard = FtcDashboard.getInstance();
         telemetry = new MultipleTelemetry(telemetry, dashboard.getTelemetry());
 
-        MecanumDrive movi = new MecanumDrive(hardwareMap, new Pose2d(12,-63, Math.toRadians(0)));
+        MecanumDrive movi = new MecanumDrive(hardwareMap, new Pose2d(12, -63, Math.toRadians(0)));
 
         Action direita1, direita2, direita3;
 
@@ -60,13 +63,22 @@ public class AutoTestes extends LinearOpMode {
                 .build();
 
         direita3 = movi.actionBuilder(new Pose2d(62, -62, Math.toRadians(-90)))
-                .splineToConstantHeading(new Vector2d())
+                .splineToConstantHeading(new Vector2d(62, -15), Math.toRadians(-90))
+                .splineToConstantHeading(new Vector2d(50, -14), Math.toRadians(-90))
+                .splineTo(new Vector2d(50, -62), Math.toRadians(-90))
+                .waitSeconds(3)
+                .lineToY(-48)
                 .build();
 
         waitForStart();
+
         Actions.runBlocking(new SequentialAction(
-                direita1,
+                direita1
+        ));
+        servinho.setPosition(1);
+        Actions.runBlocking(new SequentialAction(
                 direita2,
                 direita3
         ));
     }
+}
