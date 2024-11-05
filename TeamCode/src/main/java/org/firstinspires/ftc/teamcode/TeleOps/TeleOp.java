@@ -14,8 +14,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 @Autonomous (name = "TeleOperado Dox Cria", group = "OpMode")
 public class TeleOp extends OpMode {
     DcMotorEx MET, MEF, MDT, MDF, LSi, LSii;
-    Servo sexta;
-    boolean Cxta;
+    Servo sexta, ArmR, ArmL;
+    boolean Cxta, Braço;
 
     public void init(){
         MET = hardwareMap.get(DcMotorEx.class, "MET");
@@ -25,9 +25,12 @@ public class TeleOp extends OpMode {
         LSi = hardwareMap.get(DcMotorEx.class, "LSi");
         LSii = hardwareMap.get(DcMotorEx.class, "LSii");
         sexta = hardwareMap.get(Servo.class, "sexta");
+        ArmR = hardwareMap.get(Servo.class, "ArmR");
+        ArmL = hardwareMap.get(Servo.class, "ArmL");
 
         MET.setDirection(DcMotorSimple.Direction.REVERSE);
         MEF.setDirection(DcMotorSimple.Direction.REVERSE);
+        ArmR.setDirection(ServoSimple.Direction.reverse)
 
         MDF.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         MEF.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -44,6 +47,9 @@ public class TeleOp extends OpMode {
         LSii.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         sexta.setPosition(0);
+        ArmR.setPosition(0);
+        ArmL.setPosition(0);
+        Braço = false;
     }
     public void loop(){
         movi();
@@ -88,10 +94,21 @@ public class TeleOp extends OpMode {
             sexta.setPosition(1);
             Cxta = true;
         }
-
         else if (gamepad2.x && Cxta){
             sexta.setPosition(0);
             Cxta = false;
+        }
+
+        //braço
+        if (gamepad2.right_bumper){
+            if (!Braço){
+                ArmR.setPosition(1);
+                ArmL.setPosition(1);
+            }
+            else if (Braço == true){
+                ArmR.setPosition(0);
+                ArmL.setPosition(0)
+            }
         }
     }
 
