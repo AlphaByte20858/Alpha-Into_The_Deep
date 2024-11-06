@@ -14,8 +14,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 @Autonomous (name = "TeleOperado Dox Cria", group = "OpMode")
 public class TeleOp extends OpMode {
     DcMotorEx MET, MEF, MDT, MDF, LSi, LSii;
-    Servo sexta;
-    boolean Cxta;
+    Servo yawC, sR, sL, garra;
+    boolean yawG, raw, braço;
 
     public void init(){
         MET = hardwareMap.get(DcMotorEx.class, "MET");
@@ -24,10 +24,14 @@ public class TeleOp extends OpMode {
         MDF = hardwareMap.get(DcMotorEx.class, "MDF");
         LSi = hardwareMap.get(DcMotorEx.class, "LSi");
         LSii = hardwareMap.get(DcMotorEx.class, "LSii");
-        sexta = hardwareMap.get(Servo.class, "sexta");
+        yawC = hardwareMap.get(Servo.class, "yawC");
+        sR = hardwareMap.get(Servo.class, "sR");
+        sL = hardwareMap.get(Servo.class, "sL");
+        garra = hardwareMap.get(Servo.class, "garra");
 
         MET.setDirection(DcMotorSimple.Direction.REVERSE);
         MEF.setDirection(DcMotorSimple.Direction.REVERSE);
+        sR.setDirection(Servo.Direction.REVERSE);
 
         MDF.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         MEF.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -43,7 +47,14 @@ public class TeleOp extends OpMode {
         LSi.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         LSii.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        sexta.setPosition(0);
+        yawC.setPosition(0);
+        sL.setPosition(0);
+        sR.setPosition(0);
+        garra.setPosition(0);
+
+        yawG = false;
+        raw = false;
+        braço = false;
     }
     public void loop(){
         movi();
@@ -84,16 +95,37 @@ public class TeleOp extends OpMode {
     }
 
     public void Crvos(){
-        if (gamepad2.x && !Cxta){
-            sexta.setPosition(1);
-            Cxta = true;
+        if (gamepad2.x && !yawG){
+            yawC.setPosition(1);
+            yawG = true;
+        }
+        else if (gamepad2.x && yawG){
+            yawC.setPosition(0);
+            yawG = false;
         }
 
-        else if (gamepad2.x && Cxta){
-            sexta.setPosition(0);
-            Cxta = false;
+        if (gamepad2.a && !braço){
+            sR.setPosition(1);
+            sL.setPosition(1);
+            braço = true;
+        }
+        else if (gamepad2.a && braço){
+            sR.setPosition(0);
+            sL.setPosition(0);
+            braço = false;
+        }
+
+        if (gamepad2.y && raw){
+            garra.setPosition(1);
+            raw = false;
+        }
+        else if (gamepad2.y && !raw){
+            garra.setPosition(0);
+            raw = false;
         }
     }
+
+
 
     public void linear(){
         LSi.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
