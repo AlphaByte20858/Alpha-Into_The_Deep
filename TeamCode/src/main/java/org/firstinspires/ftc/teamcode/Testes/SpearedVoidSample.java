@@ -26,7 +26,14 @@ public class SpearedVoidSample extends OpMode {
         LSi.setPower((gamepad1.right_trigger - gamepad1.left_trigger) * 0.7);
         LSii.setPower((gamepad2.right_trigger - gamepad2.left_trigger) * 0.7);
 
+        PID();
+
         telemetry.addData("Sistema Linear:", LSi.getPower());
         telemetry.addData("In Take:", LSii.getPower());
+    }
+    public void PID(){
+        //continuar depois
+        double error, lerror, p,i,d;
+        error = LSi.getCurrentPosition();
     }
 }

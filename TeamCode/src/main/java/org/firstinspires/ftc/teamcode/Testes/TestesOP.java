@@ -10,25 +10,17 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 @TeleOp
 public class TestesOP extends OpMode {
-    DcMotorEx MET, MEF, MDT, MDF;// LS
+    DcMotorEx MET, MEF, MDT, MDF, LSi, LSii;
     Servo sexta;
-    CRServo intk, L, R;
-    boolean Cxta;
 
     public void init(){
         MET = hardwareMap.get(DcMotorEx.class, "MET");
         MDT = hardwareMap.get(DcMotorEx.class, "MDT");
         MEF = hardwareMap.get(DcMotorEx.class, "MEF");
         MDF = hardwareMap.get(DcMotorEx.class, "MDF");
-        //LS = hardwareMap.get(DcMotorEx.class, "LS");
-        L = hardwareMap.get(CRServo.class, "L");
-        R = hardwareMap.get(CRServo.class, "R");
-        sexta = hardwareMap.get(Servo.class, "sexta");
-        intk = hardwareMap.get(CRServo.class, "intk");
-
+        LSi = hardwareMap.get(DcMotorEx.class, "LSi");
         MET.setDirection(DcMotorSimple.Direction.REVERSE);
         MDT.setDirection(DcMotorSimple.Direction.REVERSE);
-        R.setDirection(DcMotorSimple.Direction.REVERSE);
 
         MDF.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         MEF.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -40,8 +32,7 @@ public class TestesOP extends OpMode {
         MET.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         MDT.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        intk.setPower(0);
-        sexta.setPosition(0);
+       sexta.setPosition(0);
     }
     public void loop(){
         movi();
@@ -82,18 +73,6 @@ public class TestesOP extends OpMode {
     }
 
     public void Crvos(){
-        L.setPower(gamepad1.left_stick_y);
-        R.setPower(gamepad1.left_stick_y);
-        if (gamepad2.x && !Cxta){
-            sexta.setPosition(1);
-            Cxta = true;
-        }
-        else if (gamepad2.x && Cxta){
-            sexta.setPosition(0);
-            Cxta = false;
-        }
-
-        intk.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
 
     }
 

@@ -10,14 +10,15 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous (name = "TeleOperado Dox Cria", group = "OpMode")
+
+@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name = "TeleOperado Dox Cria", group = "OpMode")
 public class TeleOp extends OpMode {
     DcMotorEx MET, MEF, MDT, MDF, LSi, LSii;
     Servo yawC, sR, sL, garra;
     boolean yawG, raw, braço;
-    Servo sexta, ArmR, ArmL;
-    boolean Cxta, Braço;
+    ElapsedTime f = new ElapsedTime();
 
     public void init(){
         MET = hardwareMap.get(DcMotorEx.class, "MET");
@@ -34,12 +35,10 @@ public class TeleOp extends OpMode {
         MET.setDirection(DcMotorSimple.Direction.REVERSE);
         MEF.setDirection(DcMotorSimple.Direction.REVERSE);
         sR.setDirection(Servo.Direction.REVERSE);
-        sexta = hardwareMap.get(Servo.class, "sexta");
-        ArmR = hardwareMap.get(Servo.class, "ArmR");
-        ArmL = hardwareMap.get(Servo.class, "ArmL");
 
         MET.setDirection(DcMotorSimple.Direction.REVERSE);
         MEF.setDirection(DcMotorSimple.Direction.REVERSE);
+        LSi.setDirection(DcMotorSimple.Direction.REVERSE);
 
         MDF.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         MEF.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -55,6 +54,9 @@ public class TeleOp extends OpMode {
         LSi.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         LSii.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
+        LSi.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        LSii.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
         yawC.setPosition(0);
         sL.setPosition(0);
         sR.setPosition(0);
@@ -63,15 +65,15 @@ public class TeleOp extends OpMode {
         yawG = false;
         raw = false;
         braço = false;
-        sexta.setPosition(0);
-        ArmR.setPosition(0);
-        ArmL.setPosition(0);
-        Braço = false;
+        f.reset();
+        f.startTime();
     }
     public void loop(){
         movi();
-        Crvos();
         linear();
+        if (f.seconds() >= 1) {
+            Crvos();
+        }
     }
 
     public void movi(){
@@ -108,48 +110,38 @@ public class TeleOp extends OpMode {
 
     public void Crvos(){
         if (gamepad2.x && !yawG){
-            yawC.setPosition(1);
+            yawC.setPosition(0.65);
             yawG = true;
+            f.reset();
         }
         else if (gamepad2.x && yawG){
             yawC.setPosition(0);
             yawG = false;
+            f.reset();
         }
 
         if (gamepad2.a && !braço){
-            sR.setPosition(1);
-            sL.setPosition(1);
+            sR.setPosition(0.4);
+            sL.setPosition(0.4);
             braço = true;
+            f.reset();
         }
         else if (gamepad2.a && braço){
-            sR.setPosition(0);
-            sL.setPosition(0);
+            sR.setPosition(0.05);
+            sL.setPosition(0.05);
             braço = false;
+            f.reset();
         }
 
         if (gamepad2.y && raw){
             garra.setPosition(1);
             raw = false;
+            f.reset();
         }
         else if (gamepad2.y && !raw) {
             garra.setPosition(0);
             raw = false;
-        }
-        else if (gamepad2.x && Cxta){
-            sexta.setPosition(0);
-            Cxta = false;
-       }
-
-        //braço
-        if (gamepad2.right_bumper){
-            if (!Braço){
-                ArmR.setPosition(1);
-                ArmL.setPosition(1);
-            }
-            else if (Braço == true){
-                ArmR.setPosition(0);
-                ArmL.setPosition(0);
-            }
+            f.reset();
         }
     }
 
