@@ -16,6 +16,8 @@ public class TeleOp extends OpMode {
     DcMotorEx MET, MEF, MDT, MDF, LSi, LSii;
     Servo yawC, sR, sL, garra;
     boolean yawG, raw, braço;
+    Servo sexta, ArmR, ArmL;
+    boolean Cxta, Braço;
 
     public void init(){
         MET = hardwareMap.get(DcMotorEx.class, "MET");
@@ -32,6 +34,12 @@ public class TeleOp extends OpMode {
         MET.setDirection(DcMotorSimple.Direction.REVERSE);
         MEF.setDirection(DcMotorSimple.Direction.REVERSE);
         sR.setDirection(Servo.Direction.REVERSE);
+        sexta = hardwareMap.get(Servo.class, "sexta");
+        ArmR = hardwareMap.get(Servo.class, "ArmR");
+        ArmL = hardwareMap.get(Servo.class, "ArmL");
+
+        MET.setDirection(DcMotorSimple.Direction.REVERSE);
+        MEF.setDirection(DcMotorSimple.Direction.REVERSE);
 
         MDF.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         MEF.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -55,6 +63,10 @@ public class TeleOp extends OpMode {
         yawG = false;
         raw = false;
         braço = false;
+        sexta.setPosition(0);
+        ArmR.setPosition(0);
+        ArmL.setPosition(0);
+        Braço = false;
     }
     public void loop(){
         movi();
@@ -119,9 +131,25 @@ public class TeleOp extends OpMode {
             garra.setPosition(1);
             raw = false;
         }
-        else if (gamepad2.y && !raw){
+        else if (gamepad2.y && !raw) {
             garra.setPosition(0);
             raw = false;
+        }
+        else if (gamepad2.x && Cxta){
+            sexta.setPosition(0);
+            Cxta = false;
+       }
+
+        //braço
+        if (gamepad2.right_bumper){
+            if (!Braço){
+                ArmR.setPosition(1);
+                ArmL.setPosition(1);
+            }
+            else if (Braço == true){
+                ArmR.setPosition(0);
+                ArmL.setPosition(0);
+            }
         }
     }
 
