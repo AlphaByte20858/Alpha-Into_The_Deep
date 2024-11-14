@@ -139,7 +139,8 @@ public final class MecanumDrive {
             imu = lazyImu.get();
 
             // TODO: reverse encoders if needed
-            //   leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
+               leftFront.setDirection(DcMotorSimple.Direction.REVERSE);//transformar essa linha e a de baixo se necessário
+               leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
         }
 
         @Override
@@ -220,7 +221,7 @@ public final class MecanumDrive {
         leftFront = hardwareMap.get(DcMotorEx.class, "MEF");
         leftBack = hardwareMap.get(DcMotorEx.class, "MET");
         rightBack = hardwareMap.get(DcMotorEx.class, "MDT");
-        rightFront = hardwareMap.get(DcMotorEx.class, "MDF♦");
+        rightFront = hardwareMap.get(DcMotorEx.class, "MDF");
 
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);

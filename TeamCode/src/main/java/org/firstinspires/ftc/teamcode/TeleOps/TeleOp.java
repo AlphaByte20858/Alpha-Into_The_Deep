@@ -15,9 +15,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp(name = "TeleOperado Dox Cria", group = "OpMode")
 public class TeleOp extends OpMode {
-    DcMotorEx MET, MEF, MDT, MDF, LSi, LSii;
-    Servo yawC, sR, sL, garra;
-    boolean yawG, raw, braço;
+    DcMotorEx MET, MEF, MDT, MDF, LSi, LSii, braço;
+    Servo yawC, garra;
+    boolean yawG, raw;
     ElapsedTime f = new ElapsedTime();
 
     public void init(){
@@ -28,17 +28,13 @@ public class TeleOp extends OpMode {
         LSi = hardwareMap.get(DcMotorEx.class, "LSi");
         LSii = hardwareMap.get(DcMotorEx.class, "LSii");
         yawC = hardwareMap.get(Servo.class, "yawC");
-        sR = hardwareMap.get(Servo.class, "sR");
-        sL = hardwareMap.get(Servo.class, "sL");
         garra = hardwareMap.get(Servo.class, "garra");
-
-        MET.setDirection(DcMotorSimple.Direction.REVERSE);
-        MEF.setDirection(DcMotorSimple.Direction.REVERSE);
-        sR.setDirection(Servo.Direction.REVERSE);
+        braço = hardwareMap.get(DcMotorEx.class, "braço");
 
         MET.setDirection(DcMotorSimple.Direction.REVERSE);
         MEF.setDirection(DcMotorSimple.Direction.REVERSE);
         LSi.setDirection(DcMotorSimple.Direction.REVERSE);
+        braço.setDirection(DcMotorSimple.Direction.REVERSE);
 
         MDF.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         MEF.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -56,28 +52,28 @@ public class TeleOp extends OpMode {
 
         LSi.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         LSii.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        braço.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         yawC.setPosition(0);
-        sL.setPosition(0);
-        sR.setPosition(0);
-        garra.setPosition(0);
-
+        garra.setPosition(1);
+        garra.setDirection(Servo.Direction.REVERSE);
         yawG = false;
         raw = false;
-        braço = false;
         f.reset();
         f.startTime();
+        double max, min;
     }
     public void loop(){
         movi();
         linear();
+        arm();
         if (f.seconds() >= 1) {
             Crvos();
         }
     }
 
     public void movi(){
-        double axial   = gamepad1.right_trigger - gamepad1.left_trigger;
+        double axial   = gamepad1.left_trigger - gamepad1.right_trigger;
         double lateral = gamepad1.left_stick_x;
         double yaw     =  gamepad1.right_stick_x;
 
@@ -91,7 +87,7 @@ public class TeleOp extends OpMode {
         double motorDireitoTf = (axial + lateral - yaw / denominador);
 
         if(gamepad1.right_bumper){
-            MotorsPower(motorEsquerdoFf, motorDireitoFf , motorEsquerdoTf, motorDireitoTf);
+            MotorsPower(motorEsquerdoFf * 0.8, motorDireitoFf * 0.8, motorEsquerdoTf * 0.8, motorDireitoTf * 0.8);
         }
         else {
             MotorsPower(motorEsquerdoFf, motorDireitoFf, motorEsquerdoTf, motorDireitoTf);
@@ -109,38 +105,25 @@ public class TeleOp extends OpMode {
     }
 
     public void Crvos(){
-        if (gamepad2.x && !yawG){
+        if (gamepad2.y && !yawG){
             yawC.setPosition(0.65);
             yawG = true;
             f.reset();
         }
-        else if (gamepad2.x && yawG){
+        else if (gamepad2.y && yawG){
             yawC.setPosition(0);
             yawG = false;
             f.reset();
         }
 
-        if (gamepad2.a && !braço){
-            sR.setPosition(0.4);
-            sL.setPosition(0.4);
-            braço = true;
-            f.reset();
-        }
-        else if (gamepad2.a && braço){
-            sR.setPosition(0.05);
-            sL.setPosition(0.05);
-            braço = false;
-            f.reset();
-        }
-
-        if (gamepad2.y && raw){
+        if (gamepad2.x && !raw){
             garra.setPosition(1);
             raw = false;
             f.reset();
         }
-        else if (gamepad2.y && !raw) {
-            garra.setPosition(0);
-            raw = false;
+        else if (gamepad2.x && raw) {
+            garra.setPosition(0.4);
+            raw = true;
             f.reset();
         }
     }
@@ -150,5 +133,17 @@ public class TeleOp extends OpMode {
     public void linear(){
         LSi.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
         LSii.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
+    }
+
+    public void arm(){
+        if (gamepad2.right_bumper){
+            braço.setPower(0.8);
+        }
+        else if (gamepad2.left_bumper){
+            braço.setPower(-0.8);
+        }
+        else {
+            braço.setPower(0);
+        }
     }
 }
