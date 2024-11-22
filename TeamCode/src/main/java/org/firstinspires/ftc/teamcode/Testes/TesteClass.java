@@ -12,12 +12,14 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.ftc.Actions;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 
 @Autonomous (name = "Sla mn", group = "LinearOpMode")
 public class TesteClass extends LinearOpMode {
     DcMotorEx MDF, MDT, MET, MEF;
+    Servo garra;
     IMU imu;
     @Override
     public void runOpMode(){
@@ -25,6 +27,7 @@ public class TesteClass extends LinearOpMode {
         MEF = hardwareMap.get(DcMotorEx.class, "MEF");
         MDF = hardwareMap.get(DcMotorEx.class, "MDF");
         MDT = hardwareMap.get(DcMotorEx.class, "MDT");
+        garra = hardwareMap.get(Servo.class, "garra");
 
         MET.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         MEF.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -48,6 +51,7 @@ public class TesteClass extends LinearOpMode {
         telemetry = new MultipleTelemetry(telemetry, dashboard.getTelemetry());
         MecanumDrive sla = new MecanumDrive(hardwareMap, new Pose2d(0,0, Math.toRadians(0)));
 
+        garra.setPosition(0);
         Action trajetoryTest;
 
             trajetoryTest = sla.actionBuilder(sla.pose)

@@ -12,10 +12,12 @@ import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp(name = "TeleOperado Dox Cria", group = "OpMode")
 public class TeleOp extends OpMode {
-    DcMotorEx MET, MEF, MDT, MDF, LSi, LSii, braço;
+    DcMotorEx MET, MEF, MDT, MDF, LSi, LSii, braço, motorSla;
     Servo yawC, garra;
     boolean yawG, raw;
     ElapsedTime f = new ElapsedTime();
@@ -30,11 +32,13 @@ public class TeleOp extends OpMode {
         yawC = hardwareMap.get(Servo.class, "yawC");
         garra = hardwareMap.get(Servo.class, "garra");
         braço = hardwareMap.get(DcMotorEx.class, "braço");
+        motorSla = hardwareMap.get(DcMotorEx.class, "motorSla");
 
         MET.setDirection(DcMotorSimple.Direction.REVERSE);
         MEF.setDirection(DcMotorSimple.Direction.REVERSE);
         LSi.setDirection(DcMotorSimple.Direction.REVERSE);
         braço.setDirection(DcMotorSimple.Direction.REVERSE);
+        motorSla.setDirection(DcMotorSimple.Direction.REVERSE);
 
         MDF.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         MEF.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -55,13 +59,13 @@ public class TeleOp extends OpMode {
         braço.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         yawC.setPosition(0);
-        garra.setPosition(1);
-        garra.setDirection(Servo.Direction.REVERSE);
+        garra.setPosition(0.6);
         yawG = false;
         raw = false;
         f.reset();
         f.startTime();
         double max, min;
+        telemetry.addLine("É O BOTÃO B DO CONTROLE 2, SE VCS ME PERGUNTAREM NO ZAP EU DEITO UM");
     }
     public void loop(){
         movi();
@@ -126,13 +130,22 @@ public class TeleOp extends OpMode {
             raw = true;
             f.reset();
         }
+        telemetry.addData("Garra está em:", garra.getPosition());
     }
+
 
 
 
     public void linear(){
         LSi.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
         LSii.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
+
+        if (gamepad2.b){
+            motorSla.setPower(1);
+        }
+        else {
+            motorSla.setPower(0);
+        }
     }
 
     public void arm(){

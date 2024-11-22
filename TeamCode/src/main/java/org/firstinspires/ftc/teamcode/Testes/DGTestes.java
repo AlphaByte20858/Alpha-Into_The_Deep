@@ -13,7 +13,6 @@ public class DGTestes extends OpMode {
         Motor = hardwareMap.get(DcMotorEx.class, "MET");
         Motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         Motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
     }
 
     public void loop() {
