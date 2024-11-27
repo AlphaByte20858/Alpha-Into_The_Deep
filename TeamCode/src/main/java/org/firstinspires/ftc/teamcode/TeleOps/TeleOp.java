@@ -17,8 +17,8 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp(name = "TeleOperado Dox Cria", group = "OpMode")
 public class TeleOp extends OpMode {
-    DcMotorEx MET, MEF, MDT, MDF, LSi, LSii, braço, motorSla; //Define os motores no sistema
-    Servo yawC, garra; //Define o nome dos servos no sistema
+    DcMotorEx MET, MEF, MDT, MDF, LSi, LSii, braço, roboAng; //Define os motores no sistema
+    Servo yawC, garrai, garraii; //Define o nome dos servos no sistema
     boolean yawG, raw;
     ElapsedTime f = new ElapsedTime(); //define contador de tempo no sistema
 
@@ -32,16 +32,18 @@ public class TeleOp extends OpMode {
         LSi = hardwareMap.get(DcMotorEx.class, "LSi");
         LSii = hardwareMap.get(DcMotorEx.class, "LSii");
         yawC = hardwareMap.get(Servo.class, "yawC");
-        garra = hardwareMap.get(Servo.class, "garra");
+        garrai = hardwareMap.get(Servo.class, "garrai");
+        garraii = hardwareMap.get(Servo.class, "garraii");
         braço = hardwareMap.get(DcMotorEx.class, "braço");
-        motorSla = hardwareMap.get(DcMotorEx.class, "motorSla");
+        roboAng = hardwareMap.get(DcMotorEx.class, "roboAng");
 
         //Define a direção dos motores
         MET.setDirection(DcMotorSimple.Direction.REVERSE);
         MEF.setDirection(DcMotorSimple.Direction.REVERSE);
         LSi.setDirection(DcMotorSimple.Direction.REVERSE);
         braço.setDirection(DcMotorSimple.Direction.REVERSE);
-        motorSla.setDirection(DcMotorSimple.Direction.REVERSE);
+        roboAng.setDirection(DcMotorSimple.Direction.REVERSE);
+        garraii.setDirection(Servo.Direction.REVERSE);
 
         //Redefine os valores dos motores
         MDF.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -66,11 +68,10 @@ public class TeleOp extends OpMode {
 
         //pré-definições antes de iniciar as funções
         yawC.setPosition(0);
-        garra.setPosition(0.6);
+        garrai.setPosition(0);
+        garraii.setPosition(0);
         yawG = false;
         raw = false;
-        f.reset();
-        f.startTime();
     }
 
     //funções que vão se repetir, utilizadas para a partida em si e contêm os sistemas
@@ -78,9 +79,7 @@ public class TeleOp extends OpMode {
         movi(); //função da movimentação
         linear(); //função do sistema linear
         arm(); //função do braço
-        if (f.seconds() >= 1) {
-            Crvos(); // função dos servos
-        }
+        Crvos(); // função dos servos
     }
 
     public void movi(){
@@ -121,26 +120,24 @@ public class TeleOp extends OpMode {
         if (gamepad2.y && !yawG){
             yawC.setPosition(0.65);
             yawG = true;
-            f.reset();
         }
         else if (gamepad2.y && yawG){
             yawC.setPosition(0);
             yawG = false;
-            f.reset();
         }
 
         //Abrir/fechar a garra
         if (gamepad2.x && !raw){
-            garra.setPosition(1);
+            garrai.setPosition(0.4);
+            garrai.setPosition(0.4);
             raw = false;
-            f.reset();
         }
+
         else if (gamepad2.x && raw) {
-            garra.setPosition(0.4);
+            garrai.setPosition(0);
+            garraii.setPosition(0);
             raw = true;
-            f.reset();
         }
-        telemetry.addData("Garra está em:", garra.getPosition());
     }
 
     public void linear(){
@@ -148,12 +145,12 @@ public class TeleOp extends OpMode {
         LSi.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
         LSii.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
 
-        //motor novo implementado
+        //motor que angula o robô para o climb
         if (gamepad2.b){
-            motorSla.setPower(1);
+            roboAng.setPower(1);
         }
         else {
-            motorSla.setPower(0);
+            roboAng.setPower(0);
         }
     }
 
