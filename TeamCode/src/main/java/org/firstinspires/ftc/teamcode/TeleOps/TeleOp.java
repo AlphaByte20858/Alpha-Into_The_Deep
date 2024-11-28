@@ -72,6 +72,7 @@ public class TeleOp extends OpMode {
         garraii.setPosition(0);
         yawG = false;
         raw = false;
+        f.reset();
     }
 
     //funções que vão se repetir, utilizadas para a partida em si e contêm os sistemas
@@ -117,26 +118,30 @@ public class TeleOp extends OpMode {
 
     public void Crvos(){
         //Angulação da garra
-        if (gamepad2.y && !yawG){
+        if (gamepad2.y && !yawG && f.seconds() >=2){
             yawC.setPosition(0.65);
             yawG = true;
+            f.reset();
         }
-        else if (gamepad2.y && yawG){
+        else if (gamepad2.y && yawG && f.seconds() >=2){
             yawC.setPosition(0);
             yawG = false;
+            f.reset();
         }
 
         //Abrir/fechar a garra
-        if (gamepad2.x && !raw){
+        if (gamepad2.x && !raw && f.seconds() >=2){
             garrai.setPosition(0.4);
-            garrai.setPosition(0.4);
+            garraii.setPosition(0.4);
             raw = false;
+            f.reset();
         }
 
-        else if (gamepad2.x && raw) {
+        else if (gamepad2.x && raw && f.seconds() >=2) {
             garrai.setPosition(0);
             garraii.setPosition(0);
             raw = true;
+            f.reset();
         }
     }
 
