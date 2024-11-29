@@ -20,7 +20,8 @@ public class TeleOp extends OpMode {
     DcMotorEx MET, MEF, MDT, MDF, LSi, LSii, braço, roboAng; //Define os motores no sistema
     Servo yawC, garrai, garraii; //Define o nome dos servos no sistema
     boolean yawG, raw;
-    ElapsedTime f = new ElapsedTime(); //define contador de tempo no sistema
+    ElapsedTime f = new ElapsedTime(); //define contador de tempo para as funções
+    ElapsedTime tempo = new ElapsedTime(); // define  o contador do tempo decorrido para o PID
 
     //Função de init
     public void init(){
@@ -60,6 +61,7 @@ public class TeleOp extends OpMode {
         MDT.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         LSi.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         LSii.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        braço.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         //define o meio de "freio" para os motores
         LSi.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -72,7 +74,6 @@ public class TeleOp extends OpMode {
         garraii.setPosition(0);
         yawG = false;
         raw = false;
-        f.reset();
     }
 
     //funções que vão se repetir, utilizadas para a partida em si e contêm os sistemas
@@ -81,13 +82,14 @@ public class TeleOp extends OpMode {
         linear(); //função do sistema linear
         arm(); //função do braço
         Crvos(); // função dos servos
+        telemetry.update();
     }
 
     public void movi(){
         //cálculos usados para obter os valores para as mecanum
-        double axial   = gamepad1.left_trigger - gamepad1.right_trigger;
-        double lateral = gamepad1.left_stick_x;
-        double yaw     =  gamepad1.right_stick_x;
+        double axial   = (gamepad1.left_trigger - gamepad1.right_trigger) * 0.9;
+        double lateral = gamepad1.left_stick_x * 0.8;
+        double yaw     =  gamepad1.right_stick_x * 0.6;
 
         double absaxial = Math.abs(axial);
         double abslateral = Math.abs(lateral);
@@ -104,10 +106,6 @@ public class TeleOp extends OpMode {
         else {
             MotorsPower(motorEsquerdoFf, motorDireitoFf, motorEsquerdoTf, motorDireitoTf);
         }
-        telemetry.addData("MDF", MDF.getCurrentPosition());
-        telemetry.addData("MEF", MEF.getCurrentPosition());
-        telemetry.addData("MET", MET.getCurrentPosition());
-        telemetry.addData("MDT", MDT.getCurrentPosition());
     }
     public void MotorsPower(double p1, double p2, double p3,double p4) {
         MEF.setPower(p1);
@@ -118,50 +116,64 @@ public class TeleOp extends OpMode {
 
     public void Crvos(){
         //Angulação da garra
-        if (gamepad2.y && !yawG && f.seconds() >=2){
-            yawC.setPosition(0.65);
-            yawG = true;
-            f.reset();
-        }
-        else if (gamepad2.y && yawG && f.seconds() >=2){
-            yawC.setPosition(0);
-            yawG = false;
+        if (gamepad2.y && f.seconds() >= 0.6){
+            if (!yawG){
+                yawC.setPosition(0.40);
+                yawG = true;
+            }
+            else if (yawG == true){
+                yawC.setPosition(0);
+                yawG = false;
+            }
             f.reset();
         }
 
         //Abrir/fechar a garra
-        if (gamepad2.x && !raw && f.seconds() >=2){
-            garrai.setPosition(0.4);
-            garraii.setPosition(0.4);
-            raw = false;
-            f.reset();
-        }
-
-        else if (gamepad2.x && raw && f.seconds() >=2) {
-            garrai.setPosition(0);
-            garraii.setPosition(0);
-            raw = true;
+        if (gamepad2.x && f.seconds() >= 0.6){
+            if (raw == true){
+                garrai.setPosition(0.4);
+                garraii.setPosition(0.4);
+                raw = false;
+            }
+            else if (!raw) {
+                garrai.setPosition(0);
+                garraii.setPosition(0);
+                raw = true;
+            }
             f.reset();
         }
     }
 
     public void linear(){
         //funções do linear
-        LSi.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
-        LSii.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
+        LSi.setPower(gamepad2.right_trigger - gamepad2.left_trigger * 0.7);
+        LSii.setPower(gamepad2.right_trigger - gamepad2.left_trigger * 0.7);
 
         //motor que angula o robô para o climb
-        if (gamepad2.b){
+        if (gamepad2.dpad_up){
             roboAng.setPower(1);
+        }
+        else if (gamepad2.dpad_down) {
+            roboAng.setPower(-1);
         }
         else {
             roboAng.setPower(0);
         }
+
+        telemetry.addData("Linear", LSi.getCurrentPosition());
     }
 
+    int posAlvo;
     public void arm(){
         //define a força do braço
         if (gamepad2.right_bumper){
+            /*
+            posAlvo = 40;
+            braço.setTargetPosition(posAlvo);
+            braço.setPower(0.6);
+            braço.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            REATIVAR DEPOIS DE VER AS POSIÇÕES
+            */
             braço.setPower(0.8);
         }
         else if (gamepad2.left_bumper){
@@ -170,5 +182,6 @@ public class TeleOp extends OpMode {
         else {
             braço.setPower(0);
         }
+        telemetry.addData("braço", braço.getCurrentPosition());
     }
 }
