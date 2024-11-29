@@ -31,11 +31,11 @@ public class TeleOp extends OpMode {
         MDF = hardwareMap.get(DcMotorEx.class, "MDF");
         LSi = hardwareMap.get(DcMotorEx.class, "LSi");
         LSii = hardwareMap.get(DcMotorEx.class, "LSii");
+        braço = hardwareMap.get(DcMotorEx.class, "braço");
+        roboAng = hardwareMap.get(DcMotorEx.class, "roboAng");
         yawC = hardwareMap.get(Servo.class, "yawC");
         garrai = hardwareMap.get(Servo.class, "garrai");
         garraii = hardwareMap.get(Servo.class, "garraii");
-        braço = hardwareMap.get(DcMotorEx.class, "braço");
-        roboAng = hardwareMap.get(DcMotorEx.class, "roboAng");
 
         //Define a direção dos motores
         MET.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -58,8 +58,9 @@ public class TeleOp extends OpMode {
         MEF.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         MET.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         MDT.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        LSi.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        LSii.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        LSi.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        LSii.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        braço.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         //define o meio de "freio" para os motores
         LSi.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -117,30 +118,35 @@ public class TeleOp extends OpMode {
     }
 
     public void Crvos(){
+        double angA = 0.65;
+        double zero = 0;
+        double garrasA = 0.4;
+
         //Angulação da garra
-        if (gamepad2.y && !yawG && f.seconds() >=2){
-            yawC.setPosition(0.65);
-            yawG = true;
-            f.reset();
-        }
-        else if (gamepad2.y && yawG && f.seconds() >=2){
-            yawC.setPosition(0);
-            yawG = false;
-            f.reset();
+        if (gamepad2.y && f.seconds >= 0.5){
+            if (!yawG){
+                yawC.setPosition(angA);
+                yawG = true;
+            }
+            else if (yawG == true){
+                yawC.setPosition(0);
+                yawG = false;
+            }
+            f.reset
         }
 
         //Abrir/fechar a garra
-        if (gamepad2.x && !raw && f.seconds() >=2){
-            garrai.setPosition(0.4);
-            garraii.setPosition(0.4);
-            raw = false;
-            f.reset();
-        }
-
-        else if (gamepad2.x && raw && f.seconds() >=2) {
-            garrai.setPosition(0);
-            garraii.setPosition(0);
-            raw = true;
+        if (gamepad2.x && f.seconds() >= 0.5){
+            if (raw == true){
+                garrai.setPosition(0.4);
+                garraii.setPosition(0.4);
+                raw = false;
+            }
+            else if (!raw) {
+                garrai.setPosition(0);
+                garraii.setPosition(0);
+                raw = true;
+            }  
             f.reset();
         }
     }
@@ -161,10 +167,10 @@ public class TeleOp extends OpMode {
 
     public void arm(){
         //define a força do braço
-        if (gamepad2.right_bumper){
+        if (gamepad2.dpad_up){
             braço.setPower(0.8);
         }
-        else if (gamepad2.left_bumper){
+        else if (gamepad2.dpad_down){
             braço.setPower(-0.8);
         }
         else {
