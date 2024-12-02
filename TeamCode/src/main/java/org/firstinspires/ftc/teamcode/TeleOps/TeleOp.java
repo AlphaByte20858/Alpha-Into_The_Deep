@@ -131,8 +131,8 @@ public class TeleOp extends OpMode {
         //Abrir/fechar a garra
         if (gamepad2.x && f.seconds() >= 0.6){
             if (raw == true){
-                garrai.setPosition(0.4);
-                garraii.setPosition(0.4);
+                garrai.setPosition(0.3);
+                garraii.setPosition(0.47);
                 raw = false;
             }
             else if (!raw) {
@@ -182,6 +182,6 @@ public class TeleOp extends OpMode {
         else {
             braço.setPower(0);
         }
-        telemetry.addData("braço", braço.getCurrentPosition());
+       telemetry.addData("braço", braço.getCurrentPosition());
     }
 }
