@@ -70,10 +70,10 @@ public class TeleOp extends OpMode {
 
         //pré-definições antes de iniciar as funções
         yawC.setPosition(0);
-        garrai.setPosition(0);
-        garraii.setPosition(0);
+        garrai.setPosition(0.32);
+        garraii.setPosition(0.51);
         yawG = false;
-        raw = false;
+        raw = true;
     }
 
     //funções que vão se repetir, utilizadas para a partida em si e contêm os sistemas
@@ -101,7 +101,7 @@ public class TeleOp extends OpMode {
         double motorDireitoTf = (axial + lateral - yaw / denominador);
 
         if(gamepad1.right_bumper){
-            MotorsPower(motorEsquerdoFf * 0.8, motorDireitoFf * 0.8, motorEsquerdoTf * 0.8, motorDireitoTf * 0.8);
+            MotorsPower(motorEsquerdoFf * 0.5, motorDireitoFf * 0.5, motorEsquerdoTf * 0.5, motorDireitoTf * 0.5);
         }
         else {
             MotorsPower(motorEsquerdoFf, motorDireitoFf, motorEsquerdoTf, motorDireitoTf);
@@ -116,7 +116,7 @@ public class TeleOp extends OpMode {
 
     public void Crvos(){
         //Angulação da garra
-        if (gamepad2.y && f.seconds() >= 0.6){
+        if (gamepad2.y && f.seconds() >= 0.3){
             if (!yawG){
                 yawC.setPosition(0.40);
                 yawG = true;
@@ -129,10 +129,10 @@ public class TeleOp extends OpMode {
         }
 
         //Abrir/fechar a garra
-        if (gamepad2.x && f.seconds() >= 0.6){
+        if (gamepad2.x && f.seconds() >= 0.5){
             if (raw == true){
-                garrai.setPosition(0.3);
-                garraii.setPosition(0.47);
+                garrai.setPosition(0.36);
+                garraii.setPosition(0.56);
                 raw = false;
             }
             else if (!raw) {
@@ -174,10 +174,10 @@ public class TeleOp extends OpMode {
             braço.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             REATIVAR DEPOIS DE VER AS POSIÇÕES
             */
-            braço.setPower(0.8);
+            braço.setPower(1);
         }
         else if (gamepad2.left_bumper){
-            braço.setPower(-0.8);
+            braço.setPower(-1);
         }
         else {
             braço.setPower(0);
