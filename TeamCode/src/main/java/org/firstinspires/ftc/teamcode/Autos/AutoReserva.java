@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Autos;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.PIDCoefficients;
@@ -11,7 +12,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Autonomous(name = "AutoReserva", group = "LinearOpMode")
 public class AutoReserva extends LinearOpMode {
-    public DcMotorEx MEF, MET, MDF, MDT;
+    public DcMotorEx MEF, MET, MDF, MDT, LSi, LSii, braço;
+    public Servo garrai, garraii;
     BNO055IMU imu;
 
     public static PIDCoefficients pidCoeffs = new PIDCoefficients(0, 0, 0);
@@ -61,11 +63,23 @@ public class AutoReserva extends LinearOpMode {
 
     @Override
     public void runOpMode() {
+        LSi = hardwareMap.get(DcMotorEx.class, "LSi");
+        LSii = hardwareMap.get(DcMotorEx.class, "LSii");
+        braço = hardwareMap.get(DcMotorEx.class, "braço");
+        garrai = hardwareMap.get(Servo.class, "garrai");
+        garraii = hardwareMap.get(Servo.class, "garraii");
 
-        MEF  = hardwareMap.get(DcMotorEx.class, "MEF");
-        MDF  = hardwareMap.get(DcMotorEx.class, "MDF");
+        MEF = hardwareMap.get(DcMotorEx.class, "MEF");
+        MDF = hardwareMap.get(DcMotorEx.class, "MDF");
         MET = hardwareMap.get(DcMotorEx.class, "MET");
         MDT = hardwareMap.get(DcMotorEx.class, "MDT");
+
+        braço.setDirection(DcMotorSimple.Direction.REVERSE);
+        garraii.setDirection(Servo.Direction.REVERSE);
+        LSi.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        LSi.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        LSii.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         modemoto(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         modemoto(DcMotorEx.RunMode.RUN_USING_ENCODER);
@@ -75,126 +89,52 @@ public class AutoReserva extends LinearOpMode {
         MET.setDirection(DcMotorEx.Direction.REVERSE);
         MDT.setDirection(DcMotorEx.Direction.FORWARD);
 
+        garrai.setPosition(0.36);
+        garraii.setPosition(0.56);
 
         resetRuntime();
         waitForStart();
 
         if (opModeIsActive()) {
+            allMotorsPower(-0.1, 0.1, 0.1,-0.1);
+            esperar(1);
+            allMotorsPower(0,0,0,0);
+            esperar(2);
+            allMotorsPower(-0.05,-0.05,-0.05,-0.05);
+            esperar(1);
+            braço.setPower(0.7);
+            allMotorsPower(0,0,0,0);
+            esperar(2);
+            braço.setPower(0);
+            linearPower(0.73);
+            esperar(1);
+            linearPower(0);
+            esperar(2);
+            braço.setPower(-0.3);
+            esperar(1);
+            braço.setPower(0);
+            linearPower(-0.3);
+            esperar(1);
+           /* allMotorsPower(-0.5, -0.5, -0.5, -0.5);
+            esperar(1);
+            allMotorsPower(0, 0, 0, 0);
+            sleep(3000);
+            linearPower(-0.2);
+            esperar(1);*/
+            garrai.setPosition(0);
+            garraii.setPosition(0);
+            esperar(1);
+            linearPower(0);
 
-            MEF.setTargetPosition(500);
-            MDF.setTargetPosition(500);
-            MET.setTargetPosition(500);
-            MDT.setTargetPosition(500);
-            PIDVelMoveAll(0.6);
-            modemoto(DcMotorEx.RunMode.RUN_TO_POSITION);
 
-
-            while (opModeIsActive() && MDF.isBusy() && MDT.isBusy() && MEF.isBusy() && MET.isBusy()) {
-                idle();
-            }
         }
     }
-    public double MDFpid(double velocidade) {
 
-
-        currvel = MDF.getVelocity();
-
-        error = velocidade - currvel;
-
-        integral += error * tempo.seconds();
-
-        deltaError = (error - lastError);
-
-        derivate = deltaError / tempo.seconds();
-
-        lastError = error;
-
-        pidGains.p = error * pidCoeffs.p;
-        pidGains.i = integral * pidCoeffs.i;
-        pidGains.d = derivate * pidCoeffs.d;
-
+    public void esperar(double temp){
         tempo.reset();
+        while (tempo.seconds() < temp){
 
-        double output = (pidGains.p + pidGains.i + pidGains.d + velocidade);
-        return output;
-    }
-    public double MEFpid(double velocidade1) {
-
-
-        currvel1 = MEF.getVelocity();
-
-        error1 = velocidade1 - currvel1;
-
-        integral1 += error1 * tempo.seconds();
-
-        deltaError1 = (error1 - lastError1);
-
-        derivate1 = deltaError1 / tempo.seconds();
-
-        lastError1 = error1;
-
-        pidGains1.p = error1 * pidCoeffs1.p;
-        pidGains1.i = integral1 * pidCoeffs1.i;
-        pidGains1.d = derivate1 * pidCoeffs1.d;
-
-        tempo.reset();
-
-        double output = (pidGains1.p + pidGains1.i + pidGains1.d + velocidade1);
-        return output;
-    }
-    public double METpid(double velocidade2) {
-
-
-        currvel2 = MET.getVelocity();
-
-        error2 = velocidade2 - currvel2;
-
-        integral2 += error2 * tempo.seconds();
-
-        deltaError2 = (error2 - lastError2);
-
-        derivate2 = deltaError2 / tempo.seconds();
-
-        lastError2 = error2;
-
-        pidGains2.p = error * pidCoeffs2.p;
-        pidGains2.i = integral * pidCoeffs2.i;
-        pidGains2.d = derivate * pidCoeffs2.d;
-
-        tempo.reset();
-
-        double output = (pidGains2.p + pidGains2.i + pidGains2.d + velocidade2);
-        return output;
-    }
-    public double MDTpid(double velocidade3) {
-
-
-        currvel3 = MDT.getVelocity();
-
-        error3 = velocidade3 - currvel3;
-
-        integral3 += error3 * tempo.seconds();
-
-        deltaError3 = (error3 - lastError3);
-
-        derivate3 = deltaError3 / tempo.seconds();
-
-        lastError3 = error3;
-
-        pidGains3.p = error3 * pidCoeffs3.p;
-        pidGains3.i = integral3 * pidCoeffs3.i;
-        pidGains3.d = derivate3 * pidCoeffs3.d;
-
-        tempo.reset();
-
-        double output = (pidGains3.p + pidGains3.i + pidGains3.d + velocidade3);
-        return output;
-    }
-    public void PIDVelMoveAll(double speed){
-        allMotorsPower(MEFpid(speed), MDFpid(speed), METpid(speed), MDTpid(speed));
-    }
-    public void PIDVelMove(double paMEF1, double paMDF1, double paMET1, double paMDT1 ){
-        allMotorsPower(MEFpid(paMEF1), MDFpid(paMDF1), METpid(paMET1), MDTpid(paMDT1));
+        }
     }
     public void allMotorsPower(double paMEF, double paMDF, double paMET, double paMDT){
         MEF.setPower(paMEF);
@@ -202,6 +142,11 @@ public class AutoReserva extends LinearOpMode {
         MET.setPower(paMET);
         MDT.setPower(paMDT);
     }
+    public void linearPower(double paLS){
+        LSi.setPower(paLS);
+        LSii.setPower(paLS);
+    }
+
     public void modemoto(DcMotorEx.RunMode mode){
         MDF.setMode(mode);
         MDT.setMode(mode);

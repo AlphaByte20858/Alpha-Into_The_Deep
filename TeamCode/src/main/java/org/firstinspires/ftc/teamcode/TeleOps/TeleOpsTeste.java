@@ -1,22 +1,15 @@
 package org.firstinspires.ftc.teamcode.TeleOps;
 
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-
-
-@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name = "TeleOperado Dox Cria", group = "OpMode")
-public class TeleOp extends OpMode {
+@TeleOp (name = "TeleOpsTeste", group = "OpMode")
+public class TeleOpsTeste extends OpMode {
     DcMotorEx MET, MEF, MDT, MDF, LSi, LSii, braço, roboAng; //Define os motores no sistema
     Servo yawC, garrai, garraii; //Define o nome dos servos no sistema
     boolean yawG, raw;
@@ -70,8 +63,8 @@ public class TeleOp extends OpMode {
 
         //pré-definições antes de iniciar as funções
         yawC.setPosition(0);
-        garrai.setPosition(0.36);
-        garraii.setPosition(0.56);
+        garrai.setPosition(0.32);
+        garraii.setPosition(0.51);
         yawG = false;
         raw = true;
     }
@@ -182,6 +175,6 @@ public class TeleOp extends OpMode {
         else {
             braço.setPower(0);
         }
-       telemetry.addData("braço", braço.getCurrentPosition());
+        telemetry.addData("braço", braço.getCurrentPosition());
     }
 }
