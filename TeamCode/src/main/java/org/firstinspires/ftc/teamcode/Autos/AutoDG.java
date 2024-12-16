@@ -1,65 +1,20 @@
 package org.firstinspires.ftc.teamcode.Autos;
 
-import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.PIDCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous(name = "AutoReserva", group = "LinearOpMode")
-public class AutoReserva extends LinearOpMode {
+@Autonomous(name = "AutoDG", group = "LinearOpMode")
+public class AutoDG extends LinearOpMode {
     public DcMotorEx MEF, MET, MDF, MDT, LSi, LSii, braço;
+
     public Servo garrai, garraii;
- /*   BNO055IMU imu;
-
-    public static PIDCoefficients pidCoeffs = new PIDCoefficients(0, 0, 0);
-    public PIDCoefficients pidGains = new PIDCoefficients(0, 0, 0);
-
-    public static PIDCoefficients pidCoeffs1 = new PIDCoefficients(0, 0, 0);
-    public PIDCoefficients pidGains1 = new PIDCoefficients(0, 0, 0);
-
-    public static PIDCoefficients pidCoeffs2 = new PIDCoefficients(0, 0, 0);
-    public PIDCoefficients pidGains2 = new PIDCoefficients(0, 0, 0);
-
-    public static PIDCoefficients pidCoeffs3 = new PIDCoefficients(0, 0, 0);
-    public PIDCoefficients pidGains3 = new PIDCoefficients(0, 0, 0);
-
-
-    double integral = 0;
-    double error = 0;
-    double currvel = 0;
-    double derivate = 0;
-    double deltaError = 0;
-    private double lastError = 0;
-
-    double integral1 = 0;
-    double error1 = 0;
-    double currvel1 = 0;
-    double derivate1 = 0;
-    double deltaError1 = 0;
-    private double lastError1 = 0;
-
-    double integral2 = 0;
-    double error2 = 0;
-    double currvel2 = 0;
-    double derivate2 = 0;
-    double deltaError2 = 0;
-    private double lastError2 = 0;
-
-    double integral3 = 0;
-    double error3 = 0;
-    double currvel3 = 0;
-    double derivate3 = 0;
-    double deltaError3 = 0;
-    private double lastError3 = 0;
-*/
 
     ElapsedTime tempo = new ElapsedTime();
-
 
     @Override
     public void runOpMode() {
@@ -96,14 +51,14 @@ public class AutoReserva extends LinearOpMode {
         waitForStart();
 
         if (opModeIsActive()) {
-            allMotorsPower(-0.1, 0.1, 0.1,-0.1);
+            allMotorsPower(-0.1, 0.1, 0.1, -0.1);
             esperar(1);
-            allMotorsPower(0,0,0,0);
+            allMotorsPower(0, 0, 0, 0);
             esperar(2);
-            allMotorsPower(-0.05,-0.05,-0.05,-0.05);
+            allMotorsPower(-0.05, -0.05, -0.05, -0.05);
             esperar(1);
             braço.setPower(0.7);
-            allMotorsPower(0,0,0,0);
+            allMotorsPower(0, 0, 0, 0);
             esperar(2);
             braço.setPower(0);
             linearPower(0.73);
@@ -124,30 +79,36 @@ public class AutoReserva extends LinearOpMode {
             garrai.setPosition(0);
             garraii.setPosition(0);
             esperar(1);
-            linearPower(0);
+            linearPower(0.03);
+            esperar(0.5);
+            allMotorsPower(0.08, -0.08, -0.08, 0.08);
+            esperar(1);
+            allMotorsPower(0.1, 0.1, 0.1, 0.1);
 
 
         }
     }
 
-    public void esperar(double temp){
+    public void esperar(double temp) {
         tempo.reset();
-        while (tempo.seconds() < temp){
+        while (tempo.seconds() < temp) {
 
         }
     }
-    public void allMotorsPower(double paMEF, double paMDF, double paMET, double paMDT){
+
+    public void allMotorsPower(double paMEF, double paMDF, double paMET, double paMDT) {
         MEF.setPower(paMEF);
         MDF.setPower(paMDF);
         MET.setPower(paMET);
         MDT.setPower(paMDT);
     }
-    public void linearPower(double paLS){
+
+    public void linearPower(double paLS) {
         LSi.setPower(paLS);
         LSii.setPower(paLS);
     }
 
-    public void modemoto(DcMotorEx.RunMode mode){
+    public void modemoto(DcMotorEx.RunMode mode) {
         MDF.setMode(mode);
         MDT.setMode(mode);
         MEF.setMode(mode);
