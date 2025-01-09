@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
+import com.qualcomm.robotcore.hardware.PIDCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -17,14 +18,33 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp(name = "TeleOperado Dox Cria", group = "OpMode")
 public class TeleOp extends OpMode {
+
     DcMotorEx MET, MEF, MDT, MDF, LSi, LSii, braço, roboAng; //Define os motores no sistema
     Servo yawC, garrai, garraii; //Define o nome dos servos no sistema
     boolean yawG, raw;
     ElapsedTime f = new ElapsedTime(); //define contador de tempo para as funções
     ElapsedTime tempo = new ElapsedTime(); // define  o contador do tempo decorrido para o PID
 
+    double currVelA = 0,
+            erroA = 0,
+            integralA = 0,
+            deltaErroA = 0,
+            derivA = 0,
+            lErroA = 0;
+
+    public static PIDCoefficients pidCoeffsa = new PIDCoefficients(0, 0, 0);
+    public PIDCoefficients pidGainsa = new PIDCoefficients(0, 0, 0);
+    public static PIDCoefficients pidCoeffs = new PIDCoefficients(0, 0, 0);
+    public PIDCoefficients pidGains = new PIDCoefficients(0, 0, 0);
+    public static PIDCoefficients pidCoeffs1 = new PIDCoefficients(0, 0, 0);
+    public PIDCoefficients pidGains1 = new PIDCoefficients(0, 0, 0);
+    public static PIDCoefficients pidCoeffs2 = new PIDCoefficients(0, 0, 0);
+    public PIDCoefficients pidGains2 = new PIDCoefficients(0, 0, 0);
+    public static PIDCoefficients pidCoeffs3 = new PIDCoefficients(0, 0, 0);
+    public PIDCoefficients pidGains3 = new PIDCoefficients(0, 0, 0);
+
     //Função de init
-    public void init(){
+    public void init() {
         //Definição dos motores e servos para o Drive Hub
         MET = hardwareMap.get(DcMotorEx.class, "MET");
         MDT = hardwareMap.get(DcMotorEx.class, "MDT");
@@ -77,7 +97,7 @@ public class TeleOp extends OpMode {
     }
 
     //funções que vão se repetir, utilizadas para a partida em si e contêm os sistemas
-    public void loop(){
+    public void loop() {
         movi(); //função da movimentação
         linear(); //função do sistema linear
         arm(); //função do braço
@@ -85,43 +105,42 @@ public class TeleOp extends OpMode {
         telemetry.update();
     }
 
-    public void movi(){
+    public void movi() {
         //cálculos usados para obter os valores para as mecanum
-        double axial   = (gamepad1.left_trigger - gamepad1.right_trigger) * 0.9;
+        double axial = (gamepad1.left_trigger - gamepad1.right_trigger) * 0.9;
         double lateral = gamepad1.left_stick_x * 0.8;
-        double yaw     =  gamepad1.right_stick_x * 0.6;
+        double yaw = gamepad1.right_stick_x * 0.6;
 
         double absaxial = Math.abs(axial);
         double abslateral = Math.abs(lateral);
-        double absyaw= Math.abs(yaw);
+        double absyaw = Math.abs(yaw);
         double denominador = Math.max(absaxial + abslateral + absyaw, 1);
         double motorEsquerdoFf = (axial + lateral + yaw / denominador);
         double motorDireitoFf = (axial - lateral - yaw / denominador);
         double motorEsquerdoTf = (axial - lateral + yaw / denominador);
         double motorDireitoTf = (axial + lateral - yaw / denominador);
 
-        if(gamepad1.right_bumper){
+        if (gamepad1.right_bumper) {
             MotorsPower(motorEsquerdoFf * 0.5, motorDireitoFf * 0.5, motorEsquerdoTf * 0.5, motorDireitoTf * 0.5);
-        }
-        else {
+        } else {
             MotorsPower(motorEsquerdoFf, motorDireitoFf, motorEsquerdoTf, motorDireitoTf);
         }
     }
-    public void MotorsPower(double p1, double p2, double p3,double p4) {
+
+    public void MotorsPower(double p1, double p2, double p3, double p4) {
         MEF.setPower(p1);
         MDF.setPower(p2);
         MET.setPower(p3);
         MDT.setPower(p4);
     }
 
-    public void Crvos(){
+    public void Crvos() {
         //Angulação da garra
-        if (gamepad2.y && f.seconds() >= 0.3){
-            if (!yawG){
+        if (gamepad2.y && f.seconds() >= 0.3) {
+            if (!yawG) {
                 yawC.setPosition(0.40);
                 yawG = true;
-            }
-            else if (yawG == true){
+            } else if (yawG == true) {
                 yawC.setPosition(0);
                 yawG = false;
             }
@@ -129,13 +148,12 @@ public class TeleOp extends OpMode {
         }
 
         //Abrir/fechar a garra
-        if (gamepad2.x && f.seconds() >= 0.5){
-            if (raw == true){
+        if (gamepad2.x && f.seconds() >= 0.5) {
+            if (raw == true) {
                 garrai.setPosition(0.36);
                 garraii.setPosition(0.56);
                 raw = false;
-            }
-            else if (!raw) {
+            } else if (!raw) {
                 garrai.setPosition(0);
                 garraii.setPosition(0);
                 raw = true;
@@ -144,19 +162,17 @@ public class TeleOp extends OpMode {
         }
     }
 
-    public void linear(){
+    public void linear() {
         //funções do linear
         LSi.setPower(gamepad2.right_trigger - gamepad2.left_trigger * 0.7);
         LSii.setPower(gamepad2.right_trigger - gamepad2.left_trigger * 0.7);
 
         //motor que angula o robô para o climb
-        if (gamepad2.dpad_up){
+        if (gamepad2.dpad_up) {
             roboAng.setPower(1);
-        }
-        else if (gamepad2.dpad_down) {
+        } else if (gamepad2.dpad_down) {
             roboAng.setPower(-1);
-        }
-        else {
+        } else {
             roboAng.setPower(0);
         }
 
@@ -164,9 +180,10 @@ public class TeleOp extends OpMode {
     }
 
     int posAlvo;
-    public void arm(){
+
+    public void arm() {
         //define a força do braço
-        if (gamepad2.right_bumper){
+        if (gamepad2.right_bumper) {
             /*
             posAlvo = 40;
             braço.setTargetPosition(posAlvo);
@@ -175,13 +192,36 @@ public class TeleOp extends OpMode {
             REATIVAR DEPOIS DE VER AS POSIÇÕES
             */
             braço.setPower(1);
+            braço.setPower(velocidade(1));
+        } else if (gamepad2.left_bumper) {
+            braço.setPower(velocidade(-1));
+        } else {
+            braço.setPower(velocidade(0));
         }
-        else if (gamepad2.left_bumper){
-            braço.setPower(-1);
-        }
-        else {
-            braço.setPower(0);
-        }
-       telemetry.addData("braço", braço.getCurrentPosition());
+        telemetry.addData("braço", braço.getCurrentPosition());
     }
-}
+
+    public double velocidade (double velA){
+        currVelA = braço.getVelocity();
+
+        erroA = velA - currVelA;
+
+        integralA = erroA * tempo.seconds();
+
+        deltaErroA = (erroA - lErroA);
+
+        derivA = deltaErroA / tempo.seconds();
+
+        lErroA = erroA;
+
+        pidGainsa.p = erroA * pidCoeffsa.p;
+        pidGainsa.i = integralA * pidCoeffsa.i;
+        pidGainsa.d = derivA * pidCoeffsa.d;
+
+        tempo.reset();
+
+
+        double outputA = (pidGainsa.p + pidGainsa.i + pidGainsa.d + velA);
+        return outputA;
+        }
+    }
