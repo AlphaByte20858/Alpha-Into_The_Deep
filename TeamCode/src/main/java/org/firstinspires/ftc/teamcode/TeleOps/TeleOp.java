@@ -13,6 +13,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
 
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp(name = "TeleOperado Dox Cria", group = "OpMode")
@@ -22,7 +24,10 @@ public class TeleOp extends OpMode {
     boolean yawG, raw;
     ElapsedTime f = new ElapsedTime(); //define contador de tempo para as funções
     ElapsedTime tempo = new ElapsedTime(); // define  o contador do tempo decorrido para o PID
+    double axial, lateral,yaw;
 
+    IMU imu;
+    double drive, turn, giro, angle;
     //Função de init
     public void init(){
         //Definição dos motores e servos para o Drive Hub
@@ -39,8 +44,8 @@ public class TeleOp extends OpMode {
         roboAng = hardwareMap.get(DcMotorEx.class, "roboAng");
 
         //Define a direção dos motores
-        MET.setDirection(DcMotorSimple.Direction.REVERSE);
-        MEF.setDirection(DcMotorSimple.Direction.REVERSE);
+        MDT.setDirection(DcMotorSimple.Direction.REVERSE);
+        MDF.setDirection(DcMotorSimple.Direction.REVERSE);
         LSi.setDirection(DcMotorSimple.Direction.REVERSE);
         braço.setDirection(DcMotorSimple.Direction.REVERSE);
         roboAng.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -68,6 +73,11 @@ public class TeleOp extends OpMode {
         LSii.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         braço.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        imu = hardwareMap.get(IMU.class,"imu");
+        RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.UP;
+        RevHubOrientationOnRobot.UsbFacingDirection usbDirection = RevHubOrientationOnRobot.UsbFacingDirection.LEFT;
+        RevHubOrientationOnRobot orientationrobot = new RevHubOrientationOnRobot(logoDirection,usbDirection);
+        imu.initialize(new IMU.Parameters(orientationrobot));
         //pré-definições antes de iniciar as funções
         yawC.setPosition(0);
         garrai.setPosition(0.27);
@@ -87,9 +97,11 @@ public class TeleOp extends OpMode {
 
     public void movi(){
         //cálculos usados para obter os valores para as mecanum
-        double axial   = (gamepad1.left_trigger - gamepad1.right_trigger) * 0.9;
-        double lateral = gamepad1.left_stick_x * 0.8;
-        double yaw     =  gamepad1.right_stick_x * 0.6;
+        axial   = (gamepad1.right_trigger - gamepad1.left_trigger) * 0.9;
+        lateral = gamepad1.left_stick_x * 0.8;
+        yaw     =  gamepad1.right_stick_x * 0.6;
+
+        fieldOriented(axial, lateral);
 
         double absaxial = Math.abs(axial);
         double abslateral = Math.abs(lateral);
@@ -183,5 +195,16 @@ public class TeleOp extends OpMode {
             braço.setPower(0);
         }
         telemetry.addData("braço", braço.getCurrentPosition());
+    }
+
+    public void fieldOriented(double driveP,  double turnP){
+        angle = gyroCalclate();
+        axial = driveP * Math.cos(angle) - turnP * Math.sin(angle);
+        lateral = driveP * Math.sin(angle) + turnP * Math.cos(angle);
+    }
+
+    private double gyroCalclate(){
+        YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
+        return orientation.getYaw(AngleUnit.RADIANS);
     }
 }

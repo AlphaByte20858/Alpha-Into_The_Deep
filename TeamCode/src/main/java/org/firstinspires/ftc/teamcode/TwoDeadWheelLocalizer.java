@@ -1,156 +1,131 @@
-package org.firstinspires.ftc.teamcode.Autos;
+package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
+import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.roadrunner.DualNum;
+import com.acmerobotics.roadrunner.Rotation2d;
+import com.acmerobotics.roadrunner.Time;
+import com.acmerobotics.roadrunner.Twist2dDual;
+import com.acmerobotics.roadrunner.Vector2d;
+import com.acmerobotics.roadrunner.Vector2dDual;
+import com.acmerobotics.roadrunner.ftc.Encoder;
+import com.acmerobotics.roadrunner.ftc.FlightRecorder;
+import com.acmerobotics.roadrunner.ftc.OverflowEncoder;
+import com.acmerobotics.roadrunner.ftc.PositionVelocityPair;
+import com.acmerobotics.roadrunner.ftc.RawEncoder;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.PIDCoefficients;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.IMU;
 
-@Autonomous(name = "AutoReserva", group = "LinearOpMode")
-public class AutoReserva extends LinearOpMode {
-    public DcMotorEx MEF, MET, MDF, MDT, LSi, LSii, braço;
-    public Servo garrai, garraii;
- /*   BNO055IMU imu;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AngularVelocity;
+import org.firstinspires.ftc.robotcore.external.navigation.UnnormalizedAngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
+import org.firstinspires.ftc.teamcode.messages.TwoDeadWheelInputsMessage;
 
-    public static PIDCoefficients pidCoeffs = new PIDCoefficients(0, 0, 0);
-    public PIDCoefficients pidGains = new PIDCoefficients(0, 0, 0);
+@Config
+public final class TwoDeadWheelLocalizer implements Localizer {
+    public static class Params {
+        public double parYTicks = -0; // y position of the parallel encoder (in tick units)
+        public double perpXTicks = 0; // x position of the perpendicular encoder (in tick units)
+    }
 
-    public static PIDCoefficients pidCoeffs1 = new PIDCoefficients(0, 0, 0);
-    public PIDCoefficients pidGains1 = new PIDCoefficients(0, 0, 0);
+    public static Params PARAMS = new Params();
 
-    public static PIDCoefficients pidCoeffs2 = new PIDCoefficients(0, 0, 0);
-    public PIDCoefficients pidGains2 = new PIDCoefficients(0, 0, 0);
+    public final Encoder par, perp;
+    public final IMU imu;
 
-    public static PIDCoefficients pidCoeffs3 = new PIDCoefficients(0, 0, 0);
-    public PIDCoefficients pidGains3 = new PIDCoefficients(0, 0, 0);
+    private int lastParPos, lastPerpPos;
+    private Rotation2d lastHeading;
 
+    private final double inPerTick;
 
-    double integral = 0;
-    double error = 0;
-    double currvel = 0;
-    double derivate = 0;
-    double deltaError = 0;
-    private double lastError = 0;
+    private double lastRawHeadingVel, headingVelOffset;
+    private boolean initialized;
 
-    double integral1 = 0;
-    double error1 = 0;
-    double currvel1 = 0;
-    double derivate1 = 0;
-    double deltaError1 = 0;
-    private double lastError1 = 0;
+    public TwoDeadWheelLocalizer(HardwareMap hardwareMap, IMU imu, double inPerTick) {
+        // TODO: make sure your config has **motors** with these names (or change them)
+        //   the encoders should be plugged into the slot matching the named motor
+        //   see https://ftc-docs.firstinspires.org/en/latest/hardware_and_software_configuration/configuring/index.html
+        par = new OverflowEncoder(new RawEncoder(hardwareMap.get(DcMotorEx.class, "MDT")));
+        perp = new OverflowEncoder(new RawEncoder(hardwareMap.get(DcMotorEx.class, "MEF")));
 
-    double integral2 = 0;
-    double error2 = 0;
-    double currvel2 = 0;
-    double derivate2 = 0;
-    double deltaError2 = 0;
-    private double lastError2 = 0;
+        // TODO: reverse encoder directions if needed
+        //   par.setDirection(DcMotorSimple.Direction.REVERSE);
+        perp.setDirection(DcMotorSimple.Direction.REVERSE);
 
-    double integral3 = 0;
-    double error3 = 0;
-    double currvel3 = 0;
-    double derivate3 = 0;
-    double deltaError3 = 0;
-    private double lastError3 = 0;
-*/
+        this.imu = imu;
 
-    ElapsedTime tempo = new ElapsedTime();
+        this.inPerTick = inPerTick;
 
+        FlightRecorder.write("TWO_DEAD_WHEEL_PARAMS", PARAMS);
+    }
 
-    @Override
-    public void runOpMode() {
-        LSi = hardwareMap.get(DcMotorEx.class, "LSi");
-        LSii = hardwareMap.get(DcMotorEx.class, "LSii");
-        braço = hardwareMap.get(DcMotorEx.class, "braço");
-        garrai = hardwareMap.get(Servo.class, "garrai");
-        garraii = hardwareMap.get(Servo.class, "garraii");
+    public Twist2dDual<Time> update() {
+        PositionVelocityPair parPosVel = par.getPositionAndVelocity();
+        PositionVelocityPair perpPosVel = perp.getPositionAndVelocity();
 
-        MEF = hardwareMap.get(DcMotorEx.class, "MEF");
-        MDF = hardwareMap.get(DcMotorEx.class, "MDF");
-        MET = hardwareMap.get(DcMotorEx.class, "MET");
-        MDT = hardwareMap.get(DcMotorEx.class, "MDT");
+        YawPitchRollAngles angles = imu.getRobotYawPitchRollAngles();
+        // Use degrees here to work around https://github.com/FIRST-Tech-Challenge/FtcRobotController/issues/1070
+        AngularVelocity angularVelocityDegrees = imu.getRobotAngularVelocity(AngleUnit.DEGREES);
+        AngularVelocity angularVelocity = new AngularVelocity(
+                UnnormalizedAngleUnit.RADIANS,
+                (float) Math.toRadians(angularVelocityDegrees.xRotationRate),
+                (float) Math.toRadians(angularVelocityDegrees.yRotationRate),
+                (float) Math.toRadians(angularVelocityDegrees.zRotationRate),
+                angularVelocityDegrees.acquisitionTime
+        );
 
-        braço.setDirection(DcMotorSimple.Direction.REVERSE);
-        garraii.setDirection(Servo.Direction.REVERSE);
-        LSi.setDirection(DcMotorSimple.Direction.REVERSE);
+        FlightRecorder.write("TWO_DEAD_WHEEL_INPUTS", new TwoDeadWheelInputsMessage(parPosVel, perpPosVel, angles, angularVelocity));
 
-        LSi.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        LSii.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        Rotation2d heading = Rotation2d.exp(angles.getYaw(AngleUnit.RADIANS));
 
-        modemoto(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        modemoto(DcMotorEx.RunMode.RUN_USING_ENCODER);
-
-        MEF.setDirection(DcMotorEx.Direction.REVERSE);
-        MDF.setDirection(DcMotorEx.Direction.FORWARD);
-        MET.setDirection(DcMotorEx.Direction.REVERSE);
-        MDT.setDirection(DcMotorEx.Direction.FORWARD);
-
-        garrai.setPosition(0.29);
-        garraii.setPosition(0.30);
-
-        resetRuntime();
-        waitForStart();
-
-        if (opModeIsActive()) {
-            allMotorsPower(-0.1, 0.1, 0.1,-0.1);
-            esperar(1);
-            allMotorsPower(0,0,0,0);
-            esperar(2);
-            allMotorsPower(-0.05,-0.05,-0.05,-0.05);
-            esperar(1);
-            braço.setPower(0.7);
-            allMotorsPower(0,0,0,0);
-            esperar(2);
-            braço.setPower(0);
-            linearPower(0.80);
-            esperar(1);
-            linearPower(0);
-            esperar(2);
-            braço.setPower(-0.3);
-            esperar(1);
-            braço.setPower(0);
-            linearPower(-0.3);
-            esperar(1);
-           /* allMotorsPower(-0.5, -0.5, -0.5, -0.5);
-            esperar(1);
-            allMotorsPower(0, 0, 0, 0);
-            sleep(3000);
-            linearPower(-0.2);
-            esperar(1);*/
-            garrai.setPosition(0);
-            garraii.setPosition(0);
-            esperar(1);
-            linearPower(0);
-
-
+        // see https://github.com/FIRST-Tech-Challenge/FtcRobotController/issues/617
+        double rawHeadingVel = angularVelocity.zRotationRate;
+        if (Math.abs(rawHeadingVel - lastRawHeadingVel) > Math.PI) {
+            headingVelOffset -= Math.signum(rawHeadingVel) * 2 * Math.PI;
         }
-    }
+        lastRawHeadingVel = rawHeadingVel;
+        double headingVel = headingVelOffset + rawHeadingVel;
 
-    public void esperar(double temp){
-        tempo.reset();
-        while (tempo.seconds() < temp){
+        if (!initialized) {
+            initialized = true;
 
+            lastParPos = parPosVel.position;
+            lastPerpPos = perpPosVel.position;
+            lastHeading = heading;
+
+            return new Twist2dDual<>(
+                    Vector2dDual.constant(new Vector2d(0.0, 0.0), 2),
+                    DualNum.constant(0.0, 2)
+            );
         }
-    }
-    public void allMotorsPower(double paMEF, double paMDF, double paMET, double paMDT){
-        MEF.setPower(paMEF);
-        MDF.setPower(paMDF);
-        MET.setPower(paMET);
-        MDT.setPower(paMDT);
-    }
-    public void linearPower(double paLS){
-        LSi.setPower(paLS);
-        LSii.setPower(paLS);
-    }
 
-    public void modemoto(DcMotorEx.RunMode mode){
-        MDF.setMode(mode);
-        MDT.setMode(mode);
-        MEF.setMode(mode);
-        MET.setMode(mode);
+        int parPosDelta = parPosVel.position - lastParPos;
+        int perpPosDelta = perpPosVel.position - lastPerpPos;
+        double headingDelta = heading.minus(lastHeading);
+
+        Twist2dDual<Time> twist = new Twist2dDual<>(
+                new Vector2dDual<>(
+                        new DualNum<Time>(new double[] {
+                                parPosDelta - PARAMS.parYTicks * headingDelta,
+                                parPosVel.velocity - PARAMS.parYTicks * headingVel,
+                        }).times(inPerTick),
+                        new DualNum<Time>(new double[] {
+                                perpPosDelta - PARAMS.perpXTicks * headingDelta,
+                                perpPosVel.velocity - PARAMS.perpXTicks * headingVel,
+                        }).times(inPerTick)
+                ),
+                new DualNum<>(new double[] {
+                        headingDelta,
+                        headingVel,
+                })
+        );
+
+        lastParPos = parPosVel.position;
+        lastPerpPos = perpPosVel.position;
+        lastHeading = heading;
+
+        return twist;
     }
 }

@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Testes;
 
+import com.arcrobotics.ftclib.gamepad.GamepadEx;
+import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -10,6 +12,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 @TeleOp
 public class MotorSample extends OpMode {
     DcMotorEx MDT, MDF, MET, MEF;
+    GamepadEx gamepadEx1, gamepadEx2;
     public void init() {
         MET = hardwareMap.get(DcMotorEx.class, "MET");
         MDT = hardwareMap.get(DcMotorEx.class, "MDT");
@@ -34,7 +37,6 @@ public class MotorSample extends OpMode {
     }
 
     public void loop(){
-
         double axial   = gamepad1.right_trigger - gamepad1.left_trigger;
         double lateral = gamepad1.left_stick_x * 0.9;
         double yaw     =  gamepad1.right_stick_x * 0.6;
